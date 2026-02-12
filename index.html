@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>U.S. Metro Population Growth - Bar Chart Race</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background: #f9f9f9;
+      }
+      #container {
+        width: 100%;
+        height: 600px;
+      }
+      .controls {
+        text-align: center;
+        padding: 20px;
+        background: #f9f9f9;
+      }
+      .fa {
+        font-family: FontAwesome;
+      }
+      .fa-play:before {
+        content: "▶";
+      }
+      .fa-pause:before {
+        content: "⏸";
+      }
+      .fa-replay:before {
+        content: "↻";
+        font-size: 20px;
+      }
+      button {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: #2caffe;
+        color: white;
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+        margin-right: 15px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+      button:hover {
+        background-color: #1a9be6;
+      }
+      button:active {
+        transform: scale(0.95);
+      }
+      input[type="range"] {
+        width: 60%;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container"></div>
+    <div class="controls">
+      <button id="play-pause-button" class="fa fa-play" title="play"></button>
+      <input id="play-range" type="range" min="0" max="155" value="0" />
+    </div>
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+    <script>
+      // Parse CSV data
+      async function loadData() {
+        const response = await fetch("metro_population_data.csv");
+        const csvText = await response.text();
+
+        const lines = csvText.trim().split("\n");
+        const headers = lines[0].split(",");
+
+        const data = {};
+        const allPeriods = new Set();
+
+        // Parse CSV and collect all years
+        for (let i = 1; i < lines.length; i++) {
+          const [metro, year, population] = lines[i].split(",");
+
+          if (!data[metro]) {
+            data[metro] = {};
+          }
+
+          data[metro][year] = parseInt(population, 10);
+          allPeriods.add(year);
+        }
+
+        // Sort periods chronologically
+        const sortedPeriods = Array.from(allPeriods).sort(
+          (a, b) => parseInt(a) - parseInt(b),
+        );
+
+        return {
+          data: data,
+          periods: sortedPeriods,
+        };
+      }
+
+      // Format period as year
+      function formatPeriod(period) {
+        return period;
+      }
+
+      const metroOpacity = 0.27;
+
+      // Metro color mapping
+      const metroColors = {
+        Atlanta: "#377eb8", // Blue - solid fill
+        Charlotte: `rgba(228, 26, 28, ${metroOpacity})`, // Red - 25% opacity
+        Dallas: `rgba(77, 175, 74, ${metroOpacity})`, // Green - 25% opacity
+        Houston: `rgba(152, 78, 163, ${metroOpacity})`, // Purple - 25% opacity
+        Miami: `rgba(255, 127, 0, ${metroOpacity})`, // Orange - 25% opacity
+        Philadelphia: `rgba(255, 255, 51, ${metroOpacity})`, // Yellow - 25% opacity
+        Phoenix: `rgba(166, 86, 40, ${metroOpacity})`, // Brown - 25% opacity
+        "Washington DC": `rgba(247, 129, 191, ${metroOpacity})`, // Pink - 25% opacity
+      };
+
+      // Get data for a specific period (top N metros)
+      function getData(period, dataset, nbr = 10) {
+        const output = Object.entries(dataset)
+          .map(([metro, periods]) => {
+            const value = periods[period] || 0;
+            const color = metroColors[metro];
+
+            return {
+              name: metro,
+              y: value,
+              color: color,
+            };
+          })
+          .sort((a, b) => b.y - a.y);
+
+        return output.slice(0, nbr);
+      }
+
+      // Get subtitle with formatted period
+      function getSubtitle(period, dataset) {
+        return `<span style="font-size: 80px">${formatPeriod(period)}</span>`;
+      }
+
+      // Highcharts animation extension (from demo.js)
+      (function (H) {
+        const FLOAT = /^-?\d+\.?\d*$/;
+
+        H.Fx.prototype.textSetter = function () {
+          const chart = H.charts[this.elem.renderer.chartIndex];
+          let thousandsSep = chart.numberFormatter("1000.0")[1];
+
+          if (/[0-9]/.test(thousandsSep)) {
+            thousandsSep = " ";
+          }
+
+          const replaceRegEx = new RegExp(thousandsSep, "g");
+          let startValue = this.start.replace(replaceRegEx, "");
+          let endValue = this.end.replace(replaceRegEx, "");
+          let currentValue = this.end.replace(replaceRegEx, "");
+
+          if ((startValue || "").match(FLOAT)) {
+            startValue = parseInt(startValue, 10);
+            endValue = parseInt(endValue, 10);
+            currentValue = chart.numberFormatter(
+              Math.round(startValue + (endValue - startValue) * this.pos),
+              0,
+            );
+          }
+
+          this.elem.endText = this.end;
+          this.elem.attr(this.prop, currentValue, null, true);
+        };
+
+        H.SVGElement.prototype.textGetter = function () {
+          const ct = this.text.element.textContent || "";
+          return this.endText ? this.endText : ct.substring(0, ct.length / 2);
+        };
+
+        H.wrap(H.Series.prototype, "drawDataLabels", function (proceed) {
+          const attr = H.SVGElement.prototype.attr;
+          const chart = this.chart;
+
+          if (chart.sequenceTimer) {
+            this.points.forEach((point) =>
+              (point.dataLabels || []).forEach(
+                (label) =>
+                  (label.attr = function (hash) {
+                    if (
+                      hash &&
+                      hash.text !== undefined &&
+                      chart.isResizing === 0
+                    ) {
+                      const text = hash.text;
+                      delete hash.text;
+                      return this.attr(hash).animate({ text });
+                    }
+                    return attr.apply(this, arguments);
+                  }),
+              ),
+            );
+          }
+
+          const ret = proceed.apply(
+            this,
+            Array.prototype.slice.call(arguments, 1),
+          );
+
+          this.points.forEach((p) =>
+            (p.dataLabels || []).forEach((d) => (d.attr = attr)),
+          );
+
+          return ret;
+        });
+      })(Highcharts);
+
+      // Initialize
+      let dataset, periods, chart;
+      const btn = document.getElementById("play-pause-button");
+      const input = document.getElementById("play-range");
+
+      loadData().then((result) => {
+        dataset = result.data;
+        periods = result.periods;
+
+        // Set range max to number of periods - 1
+        input.max = periods.length - 1;
+        input.value = 0;
+
+        // Create chart
+        chart = Highcharts.chart("container", {
+          chart: {
+            animation: {
+              duration: 500,
+            },
+            marginRight: 50,
+            backgroundColor: "#F9F9F9",
+          },
+          credits: {
+            enabled: true,
+            text: "Data Source: U.S. Census Bureau Decenniel & ACS Estimates",
+            href: "",
+            style: {
+              fontSize: "11px",
+              color: "#666",
+            },
+          },
+          tooltip: {
+            enabled: false,
+          },
+          title: {
+            text: "Major U.S. Metro Population Growth (1980-Present)",
+            align: "center",
+          },
+          subtitle: {
+            text: getSubtitle(periods[0], dataset),
+            floating: true,
+            align: "right",
+            verticalAlign: "bottom",
+            useHTML: true,
+            y: -20,
+            x: -20,
+          },
+          legend: {
+            enabled: false,
+          },
+          xAxis: {
+            type: "category",
+            labels: {
+              useHTML: true,
+              formatter: function () {
+                if (this.value === "Atlanta") {
+                  return (
+                    '<span style="font-weight: bold; font-size: 16px;">' +
+                    this.value +
+                    "</span>"
+                  );
+                }
+                return this.value;
+              },
+            },
+          },
+          yAxis: {
+            opposite: true,
+            tickPixelInterval: 150,
+            title: {
+              text: null,
+            },
+            labels: {
+              formatter: function () {
+                if (this.value >= 1000000) {
+                  // Millions
+                  const millions = this.value / 1000000;
+                  return millions.toFixed(1).replace(/\.0$/, "") + "M";
+                } else if (this.value >= 1000) {
+                  // Thousands
+                  const thousands = this.value / 1000;
+                  return Math.round(thousands) + "k";
+                }
+                return this.value;
+              },
+            },
+          },
+          plotOptions: {
+            series: {
+              animation: false,
+              groupPadding: 0,
+              pointPadding: 0.1,
+              borderWidth: 0,
+              colorByPoint: false,
+              dataSorting: {
+                enabled: true,
+                matchByName: true,
+              },
+              type: "bar",
+              dataLabels: {
+                enabled: true,
+                style: {
+                  fontWeight: "normal",
+                  fontSize: "11px",
+                },
+              },
+            },
+          },
+          series: [
+            {
+              type: "bar",
+              name: periods[0],
+              data: getData(periods[0], dataset),
+            },
+          ],
+          responsive: {
+            rules: [
+              {
+                condition: {
+                  maxWidth: 550,
+                },
+                chartOptions: {
+                  xAxis: {
+                    visible: false,
+                  },
+                  subtitle: {
+                    x: 0,
+                    align: "center",
+                  },
+                  plotOptions: {
+                    series: {
+                      dataLabels: [
+                        {
+                          enabled: true,
+                          y: 8,
+                        },
+                        {
+                          enabled: true,
+                          format: "{point.name}",
+                          y: -8,
+                          style: {
+                            fontWeight: "normal",
+                            opacity: 0.7,
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        });
+
+        // Style Atlanta's data label on initial load
+        chart.series[0].points.forEach((point) => {
+          if (point.name === "Atlanta" && point.dataLabel) {
+            point.dataLabel.css({
+              fontWeight: "bold",
+              fontSize: "16px",
+            });
+          }
+        });
+      });
+
+      // Update chart
+      function update(increment) {
+        if (increment) {
+          input.value = parseInt(input.value, 10) + increment;
+        }
+
+        const currentIndex = parseInt(input.value, 10);
+        const currentPeriod = periods[currentIndex];
+
+        if (currentIndex >= periods.length - 1) {
+          // Race finished - show replay button
+          showReplay(btn);
+        }
+
+        chart.update(
+          {
+            subtitle: {
+              text: getSubtitle(currentPeriod, dataset),
+            },
+          },
+          false,
+          false,
+          false,
+        );
+
+        chart.series[0].update({
+          name: currentPeriod,
+          data: getData(currentPeriod, dataset),
+        });
+
+        // Style Atlanta's data label to stand out
+        chart.series[0].points.forEach((point) => {
+          if (point.name === "Atlanta" && point.dataLabel) {
+            point.dataLabel.css({
+              fontWeight: "bold",
+              fontSize: "16px",
+            });
+          }
+        });
+      }
+
+      // Pause
+      function pause(button) {
+        button.title = "play";
+        button.className = "fa fa-play";
+        clearTimeout(chart.sequenceTimer);
+        chart.sequenceTimer = undefined;
+      }
+
+      // Show replay (when race finishes)
+      function showReplay(button) {
+        button.title = "replay";
+        button.className = "fa fa-replay";
+        clearTimeout(chart.sequenceTimer);
+        chart.sequenceTimer = undefined;
+      }
+
+      // Play
+      function play(button) {
+        button.title = "pause";
+        button.className = "fa fa-pause";
+        chart.sequenceTimer = setInterval(function () {
+          update(1);
+        }, 500);
+      }
+
+      // Event listeners
+      btn.addEventListener("click", function () {
+        if (this.className.includes("fa-replay")) {
+          // Replay: reset to beginning and start playing
+          input.value = 0;
+          update();
+          play(this);
+        } else if (chart && chart.sequenceTimer) {
+          pause(this);
+        } else if (chart) {
+          play(this);
+        }
+      });
+
+      input.addEventListener("input", function () {
+        if (chart) {
+          // If user manually moves slider away from end, switch back to play button
+          const currentIndex = parseInt(input.value, 10);
+          if (
+            currentIndex < periods.length - 1 &&
+            btn.className.includes("fa-replay")
+          ) {
+            btn.title = "play";
+            btn.className = "fa fa-play";
+          }
+          update();
+        }
+      });
+    </script>
+  </body>
+</html>
