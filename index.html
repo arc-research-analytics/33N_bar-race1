@@ -74,7 +74,7 @@
     <script>
       // Parse CSV data
       async function loadData() {
-        const response = await fetch("metro_population_data.csv");
+        const response = await fetch("metro_population.csv");
         const csvText = await response.text();
 
         const lines = csvText.trim().split("\n");
@@ -117,12 +117,12 @@
       const metroColors = {
         Atlanta: "#377eb8", // Blue - solid fill
         Charlotte: `rgba(228, 26, 28, ${metroOpacity})`, // Red - 25% opacity
-        Dallas: `rgba(77, 175, 74, ${metroOpacity})`, // Green - 25% opacity
+        "Dallas-Fort Worth": `rgba(77, 175, 74, ${metroOpacity})`, // Green - 25% opacity
         Houston: `rgba(152, 78, 163, ${metroOpacity})`, // Purple - 25% opacity
         Miami: `rgba(255, 127, 0, ${metroOpacity})`, // Orange - 25% opacity
         Philadelphia: `rgba(255, 255, 51, ${metroOpacity})`, // Yellow - 25% opacity
         Phoenix: `rgba(166, 86, 40, ${metroOpacity})`, // Brown - 25% opacity
-        "Washington DC": `rgba(247, 129, 191, ${metroOpacity})`, // Pink - 25% opacity
+        "D.C.": `rgba(247, 129, 191, ${metroOpacity})`, // Pink - 25% opacity
       };
 
       // Get data for a specific period (top N metros)
@@ -244,7 +244,7 @@
           },
           credits: {
             enabled: true,
-            text: "Data Source: U.S. Census Bureau Decennial & ACS Estimates",
+            text: "Data Source: U.S. Census Bureau Population Estimates Program",
             href: "",
             style: {
               fontSize: "11px",
@@ -255,7 +255,7 @@
             enabled: false,
           },
           title: {
-            text: "Major U.S. Metro Population Growth (1980-Present)",
+            text: "Major U.S. Metro Population Growth (1970-Present)",
             align: "center",
           },
           subtitle: {
