@@ -59,6 +59,38 @@
         width: 60%;
         cursor: pointer;
       }
+      /* Flip tooltip arrow to point left */
+      .highcharts-tooltip path.highcharts-tooltip-box {
+        display: none;
+      }
+      .highcharts-tooltip > span {
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        padding: 6px 10px;
+        position: relative;
+        margin-left: 10px;
+      }
+      .highcharts-tooltip > span::before {
+        content: '';
+        position: absolute;
+        left: -7px;
+        top: 50%;
+        transform: translateY(-50%);
+        border-top: 7px solid transparent;
+        border-bottom: 7px solid transparent;
+        border-right: 7px solid #ccc;
+      }
+      .highcharts-tooltip > span::after {
+        content: '';
+        position: absolute;
+        left: -6px;
+        top: 50%;
+        transform: translateY(-50%);
+        border-top: 6px solid transparent;
+        border-bottom: 6px solid transparent;
+        border-right: 6px solid white;
+      }
     </style>
   </head>
   <body>
@@ -252,7 +284,21 @@
             },
           },
           tooltip: {
-            enabled: false,
+            enabled: true,
+            useHTML: true,
+            shadow: false,
+            borderWidth: 0,
+            backgroundColor: 'transparent',
+            format: '<b>{point.name}</b><br/>{series.name}: {point.y:,.0f}',
+            style: {
+              fontSize: '13px',
+            },
+            positioner: function (labelWidth, labelHeight, point) {
+              // Position at the "0" axis line, vertically centered on the bar
+              const xPos = this.chart.plotLeft + 5;
+              const yPos = point.plotY + this.chart.plotTop - (labelHeight / 2);
+              return { x: xPos, y: yPos };
+            },
           },
           title: {
             text: "Major U.S. Metro Population Growth (1970-Present)",
