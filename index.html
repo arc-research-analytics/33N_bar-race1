@@ -72,7 +72,7 @@
         margin-left: 10px;
       }
       .highcharts-tooltip > span::before {
-        content: '';
+        content: "";
         position: absolute;
         left: -7px;
         top: 50%;
@@ -82,7 +82,7 @@
         border-right: 7px solid #ccc;
       }
       .highcharts-tooltip > span::after {
-        content: '';
+        content: "";
         position: absolute;
         left: -6px;
         top: 50%;
@@ -288,20 +288,20 @@
             useHTML: true,
             shadow: false,
             borderWidth: 0,
-            backgroundColor: 'transparent',
-            format: '<b>{point.name}</b><br/>{series.name}: {point.y:,.0f}',
+            backgroundColor: "transparent",
+            format: "<b>{point.name}</b><br/>{series.name}: {point.y:,.0f}",
             style: {
-              fontSize: '13px',
+              fontSize: "13px",
             },
             positioner: function (labelWidth, labelHeight, point) {
               // Position at the "0" axis line, vertically centered on the bar
               const xPos = this.chart.plotLeft + 5;
-              const yPos = point.plotY + this.chart.plotTop - (labelHeight / 2);
+              const yPos = point.plotY + this.chart.plotTop - labelHeight / 2;
               return { x: xPos, y: yPos };
             },
           },
           title: {
-            text: "Major U.S. Metro Population Growth (1970-Present)",
+            text: "Major U.S. Metro Population Growth (1980-Present)",
             align: "center",
           },
           subtitle: {
@@ -310,7 +310,7 @@
             align: "right",
             verticalAlign: "bottom",
             useHTML: true,
-            y: -20,
+            y: 10,
             x: -20,
           },
           legend: {
