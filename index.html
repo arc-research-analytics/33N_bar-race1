@@ -29,10 +29,6 @@
       .fa-pause:before {
         content: "⏸";
       }
-      .fa-replay:before {
-        content: "↻";
-        font-size: 20px;
-      }
       button {
         width: 50px;
         height: 50px;
@@ -59,6 +55,96 @@
         width: 60%;
         cursor: pointer;
       }
+      /* Medal popup overlay */
+      .medal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      }
+      .medal-overlay.visible {
+        display: flex;
+      }
+      .medal-popup {
+        background: #fff;
+        border-radius: 12px;
+        padding: 32px 40px 24px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+        text-align: center;
+        min-width: 300px;
+        animation: popIn 0.3s ease;
+      }
+      @keyframes popIn {
+        from {
+          transform: scale(0.85);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .medal-popup h2 {
+        margin: 0 0 24px;
+        font-size: 20px;
+        color: #333;
+        font-weight: 600;
+      }
+      .medal-row {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 10px 0;
+        font-size: 16px;
+        color: #444;
+      }
+      .medal-icon {
+        font-size: 35px;
+        width: 45px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+      .medal-name {
+        margin-left: 12px;
+        font-weight: 500;
+      }
+      .medal-popup-buttons {
+        margin-top: 24px;
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+      }
+      .medal-popup-buttons button {
+        width: auto;
+        height: auto;
+        border-radius: 6px;
+        padding: 10px 28px;
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0;
+        box-shadow: none;
+      }
+      .btn-replay {
+        background-color: #2caffe;
+        color: #fff;
+      }
+      .btn-replay:hover {
+        background-color: #1a9be6;
+      }
+      .btn-close {
+        background-color: #e5e7eb;
+        color: #333;
+      }
+      .btn-close:hover {
+        background-color: #d1d5db;
+      }
+
       /* Flip tooltip arrow to point left */
       .highcharts-tooltip path.highcharts-tooltip-box {
         display: none;
@@ -98,6 +184,28 @@
     <div class="controls">
       <button id="play-pause-button" class="fa fa-play" title="play"></button>
       <input id="play-range" type="range" min="0" max="155" value="0" />
+    </div>
+
+    <div class="medal-overlay" id="medal-overlay">
+      <div class="medal-popup">
+        <h2>And The Winners Are:</h2>
+        <div class="medal-row">
+          <span class="medal-icon">🥇</span>
+          <span class="medal-name">Dallas-Fort Worth</span>
+        </div>
+        <div class="medal-row">
+          <span class="medal-icon">🥈</span>
+          <span class="medal-name">Houston</span>
+        </div>
+        <div class="medal-row">
+          <span class="medal-icon">🥉</span>
+          <span class="medal-name">Miami</span>
+        </div>
+        <div class="medal-popup-buttons">
+          <button class="btn-replay" id="medal-replay">Replay</button>
+          <button class="btn-close" id="medal-close">Close</button>
+        </div>
+      </div>
     </div>
 
     <script src="https://code.highcharts.com/highcharts.js"></script>
@@ -480,12 +588,12 @@
         chart.sequenceTimer = undefined;
       }
 
-      // Show replay (when race finishes)
+      // Show medal popup (when race finishes)
       function showReplay(button) {
-        button.title = "replay";
-        button.className = "fa fa-replay";
-        clearTimeout(chart.sequenceTimer);
-        chart.sequenceTimer = undefined;
+        pause(button);
+        setTimeout(function () {
+          document.getElementById("medal-overlay").classList.add("visible");
+        }, 650);
       }
 
       // Play
@@ -499,12 +607,7 @@
 
       // Event listeners
       btn.addEventListener("click", function () {
-        if (this.className.includes("fa-replay")) {
-          // Replay: reset to beginning and start playing
-          input.value = 0;
-          update();
-          play(this);
-        } else if (chart && chart.sequenceTimer) {
+        if (chart && chart.sequenceTimer) {
           pause(this);
         } else if (chart) {
           play(this);
@@ -513,18 +616,25 @@
 
       input.addEventListener("input", function () {
         if (chart) {
-          // If user manually moves slider away from end, switch back to play button
-          const currentIndex = parseInt(input.value, 10);
-          if (
-            currentIndex < periods.length - 1 &&
-            btn.className.includes("fa-replay")
-          ) {
-            btn.title = "play";
-            btn.className = "fa fa-play";
-          }
           update();
         }
       });
+
+      // Medal popup buttons
+      document
+        .getElementById("medal-replay")
+        .addEventListener("click", function () {
+          document.getElementById("medal-overlay").classList.remove("visible");
+          input.value = 0;
+          update();
+          play(btn);
+        });
+
+      document
+        .getElementById("medal-close")
+        .addEventListener("click", function () {
+          document.getElementById("medal-overlay").classList.remove("visible");
+        });
     </script>
   </body>
 </html>
