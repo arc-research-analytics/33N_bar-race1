@@ -5,10 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>U.S. Metro Population Growth - Bar Chart Race</title>
     <style>
+      @font-face {
+        font-family: "DIN Pro";
+        src: url("DINPro-CondBold.otf") format("opentype");
+        font-weight: normal;
+        font-style: normal;
+      }
+
       body {
         margin: 0;
         padding: 0;
-        font-family: Arial, sans-serif;
+        font-family: "DIN Pro", Arial, sans-serif;
         background: #f9f9f9;
       }
       #container {
@@ -19,6 +26,15 @@
         text-align: center;
         padding: 20px;
         background: #f9f9f9;
+        position: relative;
+      }
+      .controls .arc-logo {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 40px;
+        opacity: 0.8;
       }
       .fa {
         font-family: FontAwesome;
@@ -33,7 +49,7 @@
         width: 50px;
         height: 50px;
         border-radius: 50%;
-        background-color: #2caffe;
+        background-color: #555;
         color: white;
         border: none;
         font-size: 18px;
@@ -46,13 +62,36 @@
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
       }
       button:hover {
-        background-color: #1a9be6;
+        background-color: #333;
       }
       button:active {
         transform: scale(0.95);
       }
       input[type="range"] {
         width: 60%;
+        cursor: pointer;
+        -webkit-appearance: none;
+        appearance: none;
+        height: 6px;
+        background: #ccc;
+        border-radius: 3px;
+        outline: none;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #555;
+        cursor: pointer;
+      }
+      input[type="range"]::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #555;
+        border: none;
         cursor: pointer;
       }
       /* Medal popup overlay */
@@ -131,11 +170,11 @@
         box-shadow: none;
       }
       .btn-replay {
-        background-color: #2caffe;
+        background-color: rgba(248, 188, 39);
         color: #fff;
       }
       .btn-replay:hover {
-        background-color: #1a9be6;
+        background-color: rgb(226, 172, 36);
       }
       .btn-close {
         background-color: #e5e7eb;
@@ -182,6 +221,7 @@
   <body>
     <div id="container"></div>
     <div class="controls">
+      <img src="arc_logo.png" alt="ARC Logo" class="arc-logo" />
       <button id="play-pause-button" class="fa fa-play" title="play"></button>
       <input id="play-range" type="range" min="0" max="155" value="0" />
     </div>
@@ -255,14 +295,14 @@
 
       // Metro color mapping
       const metroColors = {
-        Atlanta: "#377eb8", // Blue - solid fill
-        Charlotte: `rgba(228, 26, 28, ${metroOpacity})`, // Red - 25% opacity
-        "Dallas-Fort Worth": `rgba(77, 175, 74, ${metroOpacity})`, // Green - 25% opacity
-        Houston: `rgba(152, 78, 163, ${metroOpacity})`, // Purple - 25% opacity
-        Miami: `rgba(255, 127, 0, ${metroOpacity})`, // Orange - 25% opacity
-        Philadelphia: `rgba(255, 255, 51, ${metroOpacity})`, // Yellow - 25% opacity
-        Phoenix: `rgba(166, 86, 40, ${metroOpacity})`, // Brown - 25% opacity
-        "D.C.": `rgba(247, 129, 191, ${metroOpacity})`, // Pink - 25% opacity
+        Atlanta: "rgba(248, 188, 39)", // solid fill
+        Charlotte: `rgba(237, 88, 93, ${metroOpacity})`,
+        "Dallas-Fort Worth": `rgba(121, 130, 173, ${metroOpacity})`,
+        Houston: `rgba(126, 169, 210, ${metroOpacity})`,
+        Miami: `rgba(152, 208, 230, ${metroOpacity})`,
+        Philadelphia: `rgba(237, 88, 93, ${metroOpacity})`,
+        Phoenix: `rgba(126, 169, 210, ${metroOpacity})`,
+        "D.C.": `rgba(169, 186, 119, ${metroOpacity})`,
       };
 
       // Get data for a specific period (top N metros)
@@ -381,6 +421,9 @@
             },
             marginRight: 50,
             backgroundColor: "#F9F9F9",
+            style: {
+              fontFamily: "'DIN Pro', Arial, sans-serif",
+            },
           },
           credits: {
             enabled: true,
