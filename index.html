@@ -233,7 +233,7 @@
 
     <div class="medal-overlay" id="medal-overlay">
       <div class="medal-popup">
-        <h2>And The Winners Are:</h2>
+        <h2>Congratulations To The Winners!</h2>
         <div class="medal-row">
           <span class="medal-icon">🥇</span>
           <span class="medal-name">Dallas-Fort Worth</span>
@@ -296,7 +296,7 @@
         return period;
       }
 
-      const metroOpacity = 0.27;
+      const metroOpacity = 0.99;
 
       // Metro color mapping
       const metroColors = {
@@ -317,11 +317,18 @@
             const value = periods[period] || 0;
             const color = metroColors[metro];
 
-            return {
+            const point = {
               name: metro,
               y: value,
               color: color,
             };
+
+            if (metro === "Atlanta") {
+              point.borderWidth = 2;
+              point.borderColor = "#555";
+            }
+
+            return point;
           })
           .sort((a, b) => b.y - a.y);
 
