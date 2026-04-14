@@ -39,9 +39,27 @@
         opacity: 0.8;
         z-index: 10;
       }
+      #year-display {
+        text-align: center;
+        font-size: 70px;
+        color: #333;
+        line-height: 1;
+        padding: 8px 0 0;
+        background: #f9f9f9;
+      }
+      #data-source {
+        text-align: center;
+        font-size: 13px;
+        color: #666;
+        padding: 4px 0 8px;
+        background: #f9f9f9;
+      }
       @media (max-width: 600px) {
         .arc-logo {
           display: none;
+        }
+        #year-display {
+          font-size: 50px;
         }
       }
       .fa {
@@ -231,10 +249,12 @@
       <img src="arc_logo.png" alt="ARC Logo" class="arc-logo" />
       <div id="container"></div>
     </div>
+    <div id="year-display"></div>
     <div class="controls">
       <button id="play-pause-button" class="fa fa-play" title="play"></button>
       <input id="play-range" type="range" min="0" max="155" value="0" />
     </div>
+    <div id="data-source">Data Source: U.S. Census Bureau Population Estimates Program</div>
 
     <div class="medal-overlay" id="medal-overlay">
       <div class="medal-popup">
@@ -340,10 +360,6 @@
         return output.slice(0, nbr);
       }
 
-      // Get subtitle with formatted period
-      function getSubtitle(period, dataset) {
-        return `<span style="font-size: 80px">${formatPeriod(period)}</span>`;
-      }
 
       // Highcharts animation extension (from demo.js)
       (function (H) {
@@ -443,13 +459,7 @@
             },
           },
           credits: {
-            enabled: true,
-            text: "Data Source: U.S. Census Bureau Population Estimates Program",
-            href: "",
-            style: {
-              fontSize: "11px",
-              color: "#666",
-            },
+            enabled: false,
           },
           tooltip: {
             enabled: true,
@@ -471,15 +481,10 @@
           title: {
             text: "Major U.S. Metro Population Growth (1980-Present)",
             align: "center",
-          },
-          subtitle: {
-            text: getSubtitle(periods[0], dataset),
-            floating: true,
-            align: "right",
-            verticalAlign: "bottom",
             useHTML: true,
-            y: 10,
-            x: -20,
+            style: {
+              fontSize: "22px",
+            },
           },
           legend: {
             enabled: false,
@@ -556,12 +561,12 @@
                   maxWidth: 550,
                 },
                 chartOptions: {
+                  title: {
+                    text: "Major U.S. Metro Population Growth<br>(1980-Present)",
+                    style: { fontSize: "20px" },
+                  },
                   xAxis: {
                     visible: false,
-                  },
-                  subtitle: {
-                    x: 0,
-                    align: "center",
                   },
                   plotOptions: {
                     series: {
@@ -597,6 +602,8 @@
             });
           }
         });
+
+        document.getElementById("year-display").textContent = periods[0];
       });
 
       // Update chart
@@ -613,16 +620,7 @@
           showReplay(btn);
         }
 
-        chart.update(
-          {
-            subtitle: {
-              text: getSubtitle(currentPeriod, dataset),
-            },
-          },
-          false,
-          false,
-          false,
-        );
+        document.getElementById("year-display").textContent = currentPeriod;
 
         chart.series[0].update({
           name: currentPeriod,
