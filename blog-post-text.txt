@@ -1,0 +1,10 @@
+
+With the Winter Olympics underway, competition is in the air! From curling to ice skating, only one country can take home the gold. In the same spirit, we decided to pit the metro Atlanta area against some of its peer metros to see how their respective populations have shifted since 1980 in an interactive, animated "race." Using annual county-level population estimates from the U.S. Census Bureau, we tracked metro Atlanta, Charlotte, Dallas-Fort Worth, Houston, Miami, Philadelphia, Phoenix, and Washington, D.C. from 1980 to 2024. The animation reveals some surprising lead changes along the way. 
+
+At the start of the race in 1980, Philadelphia holds a comfortable lead over the other metros. But by the late 1990s, you can see the Sun Belt metros begin to close the gap. Dallas-Fort Worth and Miami surge forward, and by the end of the 2010s both Texas metros (Houston and DFW) have overtaken Philadelphia in total metro population. Meanwhile, metro Atlanta enters a period of rapid acceleration around the close of that decade, catching up with Philadelphia and briefly passing Miami before settling into a tight pack of metros clustered between 6 and 8 million residents. In an increasingly close race for the bronze, it will be interesting to see what will happen in the next Olympiad.
+
+Grab a bucket of popcorn, hit the play button, and cheer on your favorite metro!
+
+<iframe> viz </iframe>
+
+A quick note on methodology: to ensure an apples-to-apples comparison, we held each metro's county composition constant using its 2024 definition as a Census-designated Metropolitan Statistical Area (MSA). This means metro Atlanta's 1980 population is indicative of the current 29-county footprint, even though formal MSA boundaries of the metro have shifted over the decades. In this way, we can be assured that numeric change over time is solely attributable to population growth rather than boundary changes. And note that as this is a race between geographic and population peers, we have left out the New York, Los Angeles, and Chicago metro populations.
